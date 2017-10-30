@@ -201,11 +201,11 @@ sys_dz = c2d(sys_min,Ts,'zoh');
 [A_dz,B_dz,C_dz,D_dz] = ssdata(sys_dz); 
 
 % figure(1001)
-% step(sys_min,sys_dz)
-% legend('Continuous','Discrete')
+step(sys_min,sys_dz)
+legend('Continuous','Discrete')
 
 % figure(1000)
-% bode(sys_min,sys_dz)
+bode(sys_min,sys_dz)
 
 %% Observer + MPC
 % %Kalman Observer
@@ -237,7 +237,7 @@ sys_ex_d = c2d(sys_ex,0.001);
  
 % [A_dz,B_dz,C_dz,D_dz] = ssdata(sys_d); 
 
-[kest,L,P,M] = kalman(sys_ex_d,Qn,Rn); %Finding Kalman
+[kest,L,~,M] = kalman(sys_ex_d,Qn,Rn); %Finding Kalman
 
 % %MPC
 mpcverbosity('off');
@@ -265,88 +265,88 @@ MPCobj.OV(1).Max = 8.5;
 MPCobj.OV(2).Min = -300;
 MPCobj.OV(2).Max = 300;
 
-% review(MPCobj)
+review(MPCobj)
 %% System with Cascade Control
-% syms id iq theta d_theta xl d_xl Vd Vq 
-% syms Lq Ld R p lambda Ke                                                        
-% syms Jm b Kt                                                                                                      
-% syms r l q kb ks bl M   
-% 
-% x  = l*(1- (r/l*sin(theta)-q/l)^2)^(1/2)-r*cos(theta);                     
-%  
-% d_x = d_theta*(r*sin(theta) + (r*cos(theta)*(q/l - (r*sin(theta))/l))/...
-%     (1 - (q/l - (r*sin(theta))/l)^2)^(1/2));                               
-% 
-% d_id = (1/Ld)*Vd - (R/Ld)*id + (Lq/Ld)*p*d_theta*iq;                    
-% d_iq = (1/Lq)*Vq - (R/Lq)*iq - (Ld/Lq)*p*d_theta*id - Ke/Lq*d_theta;
-% 
-% dd_theta = (1.5*p*((Ld-Lq)*iq*id))/Jm + (Kt/Jm)*iq...
-%          - (b/Jm)*d_theta...
-%          - ((b+bl)/Jm)*d_x + (bl/Jm)*d_xl...
-%          - (kb/Jm)*x + (kb/Jm)*xl; 
-% dd_xl = (bl/M)*d_x - (bl/M)*d_xl + (kb/M)*x - ((kb+ks)/M)*xl;     
-% 
-% T = Jm*dd_theta;
-% F = M*dd_xl;
-% 
-% f = [d_id d_iq d_theta dd_theta d_xl dd_xl];
-% g = [x F];
-% 
-% A = jacobian(f,[id iq theta d_theta xl d_xl]);
-% B = jacobian(f,Vq);
-% C = jacobian(g,[id iq theta d_theta xl d_xl]);
-% D = jacobian(g,Vq);
-% 
-% A = subs(A,[id iq theta d_theta xl d_xl],[0 0 0 0 0 0]);
-% C = subs(C,[id iq theta d_theta xl d_xl],[0 0 0 0 0 0]);
-% 
-% A = subs(A,[Lq Ld R p lambda Ke Jm b Kt r l q kb ks bl M],[3.334e-3 3.334e-3 0.378 6 0.11 1.13 6.375e-04 3.0073e-04 1.39 22.5 80 9 48.75 4.875 0.001 10]);
-% B = subs(B,[Lq Ld R p lambda Ke Jm b Kt r l q kb ks bl M],[3.334e-3 3.334e-3 0.378 6 0.11 1.13 6.375e-04 3.0073e-04 1.39 22.5 80 9 48.75 4.875 0.001 10]);
-% C = subs(C,[Lq Ld R p lambda Ke Jm b Kt r l q kb ks bl M],[3.334e-3 3.334e-3 0.378 6 0.11 1.13 6.375e-04 3.0073e-04 1.39 22.5 80 9 48.75 4.875 0.001 10]);
-% A = double(A);
-% B = double(B);
-% C = double(C);
-% D = double(D);
-% 
-% sys = ss(A,B,C,D);
-% 
-% sys_min = minreal(sys);
-% sys_min.StateName = {'iq','theta','d_theta','x','d_x'};
-% sys_min.InputName = {'Voltage q- axis (ref)'};
-% sys_min.OutputName = {'Position1','Force'};
-% 
-% sys_wc_dz = c2d(sys_min,Ts,'zoh');
-% 
-% [A_wc_dz,B_wc_dz,C_wc_dz,D_wc_dz] = ssdata(sys_wc_dz); 
+syms id iq theta d_theta xl d_xl Vd Vq 
+syms Lq Ld R p lambda Ke                                                        
+syms Jm b Kt                                                                                                      
+syms r l q kb ks bl M   
+
+x  = l*(1- (r/l*sin(theta)-q/l)^2)^(1/2)-r*cos(theta);                     
+ 
+d_x = d_theta*(r*sin(theta) + (r*cos(theta)*(q/l - (r*sin(theta))/l))/...
+    (1 - (q/l - (r*sin(theta))/l)^2)^(1/2));                               
+
+d_id = (1/Ld)*Vd - (R/Ld)*id + (Lq/Ld)*p*d_theta*iq;                    
+d_iq = (1/Lq)*Vq - (R/Lq)*iq - (Ld/Lq)*p*d_theta*id - Ke/Lq*d_theta;
+
+dd_theta = (1.5*p*((Ld-Lq)*iq*id))/Jm + (Kt/Jm)*iq...
+         - (b/Jm)*d_theta...
+         - ((b+bl)/Jm)*d_x + (bl/Jm)*d_xl...
+         - (kb/Jm)*x + (kb/Jm)*xl; 
+dd_xl = (bl/M)*d_x - (bl/M)*d_xl + (kb/M)*x - ((kb+ks)/M)*xl;     
+
+T = Jm*dd_theta;
+F = M*dd_xl;
+
+f = [d_id d_iq d_theta dd_theta d_xl dd_xl];
+g = [x F];
+
+A = jacobian(f,[id iq theta d_theta xl d_xl]);
+B = jacobian(f,Vq);
+C = jacobian(g,[id iq theta d_theta xl d_xl]);
+D = jacobian(g,Vq);
+
+A = subs(A,[id iq theta d_theta xl d_xl],[0 0 0 0 0 0]);
+C = subs(C,[id iq theta d_theta xl d_xl],[0 0 0 0 0 0]);
+
+A = subs(A,[Lq Ld R p lambda Ke Jm b Kt r l q kb ks bl M],[3.334e-3 3.334e-3 0.378 6 0.11 1.13 6.375e-04 3.0073e-04 1.39 22.5 80 9 48.75 4.875 0.001 10]);
+B = subs(B,[Lq Ld R p lambda Ke Jm b Kt r l q kb ks bl M],[3.334e-3 3.334e-3 0.378 6 0.11 1.13 6.375e-04 3.0073e-04 1.39 22.5 80 9 48.75 4.875 0.001 10]);
+C = subs(C,[Lq Ld R p lambda Ke Jm b Kt r l q kb ks bl M],[3.334e-3 3.334e-3 0.378 6 0.11 1.13 6.375e-04 3.0073e-04 1.39 22.5 80 9 48.75 4.875 0.001 10]);
+A = double(A);
+B = double(B);
+C = double(C);
+D = double(D);
+
+sys = ss(A,B,C,D);
+
+sys_min = minreal(sys);
+sys_min.StateName = {'iq','theta','d_theta','x','d_x'};
+sys_min.InputName = {'Voltage q- axis (ref)'};
+sys_min.OutputName = {'Position1','Force'};
+
+sys_wc_dz = c2d(sys_min,Ts,'zoh');
+
+[A_wc_dz,B_wc_dz,C_wc_dz,D_wc_dz] = ssdata(sys_wc_dz); 
 
 %% MPC WC
-% Q >> R, system quick but nosie. R >> Q system slow.
-% Qn = max(var(noise_con)); %process noise
-% Rn = [0.01 0;
-%       0   0.1];      %measurment noise
-% 
-% [kest_wc,L_wc,P,M] = kalman(sys_wc_dz,Qn,Rn); %Finding Kalman
-% 
-% mpcverbosity('off');
-% Sampling time
-% Ts = 0.001;
-% Prediction horizon
-% p = 100;
-% Control horizon
-% m = 20;
-% 
-% MPCobj_wc = mpc(sys_min,Ts,p,m);
-% 
-% Controller tuning weights
-% MPCobj_wc.W.MVRate = 0.0005;
-% MPCobj_wc.W.OV = [200 0];
-% 
-% Bounds and other properties of manipulated variables
-% MPCobj_wc.MV.Min = -2500;
-% MPCobj_wc.MV.Max = 2500;
-% 
-% Bounds and other properties of the output variables
-% MPCobj_wc.OV(1).Min = -8.5;
-% MPCobj_wc.OV(1).Max = 8.5;
-% MPCobj_wc.OV(2).Min = -1000;
-% MPCobj_wc.OV(2).Max = 1000;
+Q >> R, system quick but nosie. R >> Q system slow.
+Qn = max(var(noise_con)); %process noise
+Rn = [0.01 0;
+      0   0.1];      %measurment noise
+
+[kest_wc,L_wc,P,M] = kalman(sys_wc_dz,Qn,Rn); %Finding Kalman
+
+mpcverbosity('off');
+Sampling time
+Ts = 0.001;
+Prediction horizon
+p = 100;
+Control horizon
+m = 20;
+
+MPCobj_wc = mpc(sys_min,Ts,p,m);
+
+Controller tuning weights
+MPCobj_wc.W.MVRate = 0.0005;
+MPCobj_wc.W.OV = [200 0];
+
+Bounds and other properties of manipulated variables
+MPCobj_wc.MV.Min = -2500;
+MPCobj_wc.MV.Max = 2500;
+
+Bounds and other properties of the output variables
+MPCobj_wc.OV(1).Min = -8.5;
+MPCobj_wc.OV(1).Max = 8.5;
+MPCobj_wc.OV(2).Min = -1000;
+MPCobj_wc.OV(2).Max = 1000;
